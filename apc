@@ -83,23 +83,24 @@
 
 set -euo pipefail
 
-# local vars should be lowercase.
-# ENV vars should upper and have a default.
-# vars should be "" when appropriate and {} too
+# case signals reach: lowercase stays inside the script, UPPER crosses into env.
+# local vars lowercase, no prefix. internal globals lowercase, prefix with _.
+# env-overridable vars (collision risk) UPPER, prefix APC_, with a default.
+# quote vars with "" and brace them {} when appropriate.
 
-VER_STRING="dev"
-USE_COLOR=1
-ARROW="==>"
+_ver_string="dev"
+_use_color=1
+_arrow="==>"
 
 # Color codes
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+_green='\033[0;32m'
+_yellow='\033[1;33m'
+_nc='\033[0m'
 style() {
 	local text="${1}"
 	local color="${2}"
-	if [[ ${USE_COLOR} -eq 1 ]]; then
-		echo -e "${color}${text}${NC}"
+	if [[ ${_use_color} -eq 1 ]]; then
+		echo -e "${color}${text}${_nc}"
 	else
 		echo "${text}"
 	fi
@@ -107,15 +108,15 @@ style() {
 
 op_a() {
 	local text="${1}"
-	echo "$(style "${ARROW}" "${GREEN}") ${text}..."
+	echo "$(style "${_arrow}" "${_green}") ${text}..."
 }
 
 # Elevation options (priority order)
 # For GUI prompts you can put run0 first.
-ELEVATE=""
+_elevate=""
 for cmd in sudo doas run0 su; do
 	if command -v "${cmd}" &>/dev/null; then
-		ELEVATE="${cmd}"
+		_elevate="${cmd}"
 		break
 	fi
 done
@@ -124,14 +125,14 @@ done
 needs_elev() {
 	if [[ ${EUID} -eq 0 ]]; then
 		"$@"
-	elif [[ -z "${ELEVATE}" ]]; then
+	elif [[ -z "${_elevate}" ]]; then
 		echo "error: root required but no elevation tool found (sudo, doas, run0, su)" >&2
 		return 1
-	elif [[ "${ELEVATE}" == "su" ]]; then
+	elif [[ "${_elevate}" == "su" ]]; then
 		# su takes a command string, not argv like the others
 		su -c "$(printf '%q ' "$@")"
 	else
-		"${ELEVATE}" "$@"
+		"${_elevate}" "$@"
 	fi
 }
 
@@ -194,10 +195,10 @@ list_repos() {
 	while IFS= read -r line; do
 		if [[ "${line}" =~ ^[[:space:]]*\[([^]]+)\][[:space:]]*$ ]]; then
 			[[ "${BASH_REMATCH[1]}" == options ]] && continue
-			style "  [${BASH_REMATCH[1]}] enabled" "${GREEN}"
+			style "  [${BASH_REMATCH[1]}] enabled" "${_green}"
 		elif [[ "${line}" =~ ^#\[([^]]+)\][[:space:]]*$ ]]; then
 			[[ "${BASH_REMATCH[1]}" == options ]] && continue
-			style "  [${BASH_REMATCH[1]}] disabled" "${YELLOW}"
+			style "  [${BASH_REMATCH[1]}] disabled" "${_yellow}"
 		fi
 	done <"${conf}"
 }
@@ -228,7 +229,7 @@ sort_mirrors() {
 	fi
 }
 
-PACMAN_LOCAL="${PACMAN_LOCAL:-/var/lib/pacman/local}"
+APC_PACMAN_LOCAL="${APC_PACMAN_LOCAL:-/var/lib/pacman/local}"
 
 # Package listing. Flags pick a query mode; last one wins. -Ql/-Qo take a
 # trailing argument (a pkg name / a file path) which arrives via extra.
@@ -256,7 +257,7 @@ list_packages() {
 		# Pkg dirs are name-version-rel (always hyphenated); skips ALPM_DB_VERSION.
 		# ls -t/-tr sorts by mtime (install/upgrade order), which find/globs can't.
 		# shellcheck disable=SC2010,SC2012
-		ls "${order}" "${PACMAN_LOCAL}" | grep -- - | head -n "${count}"
+		ls "${order}" "${APC_PACMAN_LOCAL}" | grep -- - | head -n "${count}"
 		return
 	fi
 	pacman "${flag}" "${extra[@]}"
@@ -343,7 +344,7 @@ main() {
 	while [[ $# -gt 0 ]]; do
 		case "${1}" in
 		--no-color)
-			USE_COLOR=0
+			_use_color=0
 			shift
 			;;
 		*)
@@ -427,7 +428,7 @@ main() {
 		remove_package "${cmd_args[0]}" "${cmd_args[@]:1}"
 		;;
 	-v | --version | version)
-		echo "Apc ${VER_STRING} - 0BSD" && echo ""
+		echo "Apc ${_ver_string} - 0BSD" && echo ""
 		pacman -V
 		return 0
 		;;
@@ -453,6 +454,6 @@ main() {
 }
 
 # Handle keyboard interrupt and errors
-trap 'echo "$(style "Interrupted by user" "${YELLOW}")" >&2; exit 130' INT
+trap 'echo "$(style "Interrupted by user" "${_yellow}")" >&2; exit 130' INT
 
 main "$@"

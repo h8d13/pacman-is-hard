@@ -355,7 +355,7 @@ main() {
 	done
 
 	# Get command and its arguments
-	local command="${1}"
+	local command="${1:-}"
 	shift 2>/dev/null || true
 	local cmd_args=("$@")
 

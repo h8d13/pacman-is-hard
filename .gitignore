@@ -1,7 +1,7 @@
 # dirs
 pkg/
 src/
-trash/
+trash.**
 # files
 **.log
 **tar.gz

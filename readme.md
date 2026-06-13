@@ -31,7 +31,7 @@ all your pacman settings are found in `/etc/pacman.conf`
 you may also want to see this wiki page and the section about [hooks](https://wiki.archlinux.org/title/Pacman#Hooks)
 
 > originally made this for my friend @ModelCitizenPS3, who hates pacman syntax.
-> i'm also hoping reading src code could teach some things
+> i'm also hoping reading src code could teach some things, sicne he knows shell very well
 
 ## install:
 

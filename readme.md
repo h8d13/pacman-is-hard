@@ -84,7 +84,8 @@ COMMANDS
 
   deps PACKAGE [OPTIONS]          Show dependency tree (pactree)
 
-  repos [CONF]                    List repos from pacman.conf (enabled/disabled)
+  repos [OPTIONS]                 List repos from pacman.conf (enabled/disabled)
+      --config FILE               Read an alternate config (default /etc/pacman.conf)
 
   update [OPTIONS]                Force-sync package databases (-Syy)
   upgrade [OPTIONS]               Full system upgrade (-Syu)

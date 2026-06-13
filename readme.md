@@ -94,15 +94,15 @@ COMMANDS
   update [OPTIONS]                Force-sync pkg databases (-Syy)
   upgrade [OPTIONS]               Full system upgrade (-Syu)
 
-  check [OPTIONS]                 Check for available updates (checkupdates)
-  clean [OPTIONS]                 Clean old pkgs from cache (paccache -r)
-  orphs [OPTIONS]                 Remove orphaned packages (-Qdtq, then -Rns)
-
   mirrors [OPTIONS]               Update mirrorlist using reflector
       --dry-run                   Print mirrors without saving
 
   repos [OPTIONS]                 List repos from pacman.conf (enabled/disabled)
       --config FILE               Read an alternate config (default /etc/pacman.conf)
+
+  check [OPTIONS]                 Check for available updates (checkupdates)
+  clean [OPTIONS]                 Clean old pkgs from cache (paccache -r)
+  orphs [OPTIONS]                 Remove orphaned packages (-Qdtq, then -Rns)
 
 AUTHOR
   (O) Eihdran L. <hadean-eon-dev@proton.me>

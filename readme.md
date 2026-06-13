@@ -23,10 +23,12 @@ this means every arg passes through to the next tool:
 
 this second example will just get the pacman help.
 
-all dependencies are: `pacman-contrib, reflector`
+all dependencies are: `pacman`, `pacman-contrib`, `reflector`
 
 =======
 
 some details:
 
 all your pacman settings are found in `/etc/pacman.conf`
+
+> originally made this for my friend @ModelCitizenPS3, who hates pacman syntax.

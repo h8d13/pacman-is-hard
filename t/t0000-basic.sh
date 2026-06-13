@@ -22,14 +22,14 @@ test_expect_success 'help renders the synopsis and commands' '
 test_expect_success '--version prints version and runs pacman -V' '
 	reset_calls &&
 	apc --version >out &&
-	grep -q "apc $ver" out &&
+	grep -q "Apc $ver" out &&
 	grep_call "pacman -V"
 '
 
 test_expect_success '-h and -v / version are aliases for help and version' '
 	apc -h >out && grep -q "SYNOPSIS" out &&
-	apc version >out && grep -q "apc $ver" out &&
-	apc -v >out && grep -q "apc $ver" out
+	apc version >out && grep -q "Apc $ver" out &&
+	apc -v >out && grep -q "Apc $ver" out
 '
 
 test_expect_success 'unknown command falls back to search' '

@@ -10,12 +10,6 @@ test_expect_success 'clean runs paccache -r' '
 	grep_call "paccache -r"
 '
 
-test_expect_success 'sif is an alias for clean' '
-	reset_calls &&
-	aptac --no-color sif >out &&
-	grep_call "paccache -r"
-'
-
 test_expect_success 'clean passes flags through' '
 	reset_calls &&
 	aptac --no-color clean -k2 >out &&

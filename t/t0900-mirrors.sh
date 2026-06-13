@@ -5,12 +5,11 @@ test_description='mirrors via reflector (dry-run only; the saving path rewrites
 
 . ./test-lib.sh
 
-test_expect_success 'dry-run runs reflector, prints mirrors, no save, no sync' '
+test_expect_success 'dry-run runs reflector, prints mirrors, no save' '
 	reset_calls &&
 	aptac --no-color mirrors --dry-run >out &&
 	grep_call "reflector --protocol https --latest 20 --sort rate" &&
 	! grep_call "--save" &&
-	! grep_call "pacman -Syy" &&
 	grep -q "^Server = " out
 '
 

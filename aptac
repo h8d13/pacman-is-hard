@@ -242,10 +242,6 @@ remove_package() {
 	needs_elev pacman "$flag" "${extra[@]}" "$package"
 }
 
-show_help() {
-	sed -n '/^#[[:space:]]*NAME/,/^#[[:space:]]*SPDX-License/p' "$0" | sed 's/^#[[:space:]]\?//'
-}
-
 # Main function
 main() {
 	# Parse global options
@@ -256,8 +252,7 @@ main() {
 			shift
 			;;
 		-h | --help)
-			show_help
-			return 0
+			break
 			;;
 		-*)
 			echo "error: Unknown option '$1'" >&2
@@ -274,11 +269,6 @@ main() {
 	local command="$1"
 	shift 2>/dev/null || true
 	local cmd_args=("$@")
-
-	if [[ -z "$command" ]]; then
-		show_help
-		return 0
-	fi
 
 	case "$command" in
 	mirrors)
@@ -342,9 +332,9 @@ main() {
 		fi
 		remove_package "${cmd_args[0]}" "${cmd_args[@]:1}"
 		;;
-	help)
-		show_help
-		return 0
+	'' | -h | --help | help)
+		# Help text is the header comment block: line 2 to the first blank line
+		sed -n '2,/^$/s/^#[[:space:]]\{0,1\}//p' "$0"
 		;;
 	*)
 		# Not a command: treat it as a search term (apt-like default)

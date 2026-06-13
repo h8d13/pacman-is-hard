@@ -8,9 +8,12 @@ test_description='help, version, and default-command dispatch'
 # break the suite.
 ver=$(sed -n 's/^VER_STRING="\(.*\)"/\1/p' "$apc")
 
-test_expect_success 'no args prints the help block' '
-	apc >out &&
-	grep -q "apc - Wrapper for common pacman" out
+test_expect_success 'no args calls pacman directly (no help, no search)' '
+	reset_calls &&
+	test_must_fail apc >out &&
+	grep_call "pacman" &&
+	! grep_call "pacman -Ss" &&
+	! grep -q "apc - Wrapper for common pacman" out
 '
 
 test_expect_success 'help renders the synopsis and commands' '

@@ -33,11 +33,13 @@
 #   Options not listed below are passed through to the underlying tool.
 #   This means thin syntax shim, not modifying existing behaviors.
 #
+#   If no command is passed it calls pacman directly.
+#
 # GLOBAL OPTIONS
 #   --no-color          Disable colored output
 #
 # COMMANDS
-#   search PACKAGE [OPTIONS]        Search for pkgs (default command)
+#   search PACKAGE [OPTIONS]        Search for pkgs
 #       --local, -l                 Search installed pkgs
 #
 #   install PACKAGE [OPTIONS]       Install a pkg from sync repos
@@ -426,7 +428,11 @@ main() {
 		pacman -V
 		return 0
 		;;
-	'' | -h | --help | help)
+	'')
+		# No args at all: defer to pacman's own usage/output, don't search.
+		pacman "${cmd_args[@]}"
+		;;
+	-h | --help | help)
 		# Help text is the header comment block: '# NAME' to the first blank line.
 		# Anything above NAME (shebang, meta-comments) is excluded.
 		# Strip one-or-more leading '#' so '## foo' renders as 'foo', not '# foo'.

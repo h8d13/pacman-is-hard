@@ -66,11 +66,13 @@ DESCRIPTION
   Options not listed below are passed through to the underlying tool.
   This means thin syntax shim, not modifying existing behaviors.
 
+  If no command is passed it calls pacman directly.
+
 GLOBAL OPTIONS
   --no-color          Disable colored output
 
 COMMANDS
-  search PACKAGE [OPTIONS]        Search for pkgs (default command)
+  search PACKAGE [OPTIONS]        Search for pkgs
       --local, -l                 Search installed pkgs
 
   install PACKAGE [OPTIONS]       Install a pkg from sync repos

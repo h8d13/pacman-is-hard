@@ -27,11 +27,24 @@ all dependencies are: `pacman`, `pacman-contrib`, `reflector`
 
 =======
 
-some details:
+## Some details:
 
 all your pacman settings are found in `/etc/pacman.conf`
 
 > originally made this for my friend @ModelCitizenPS3, who hates pacman syntax.
+
+## Install:
+
+```shell
+git clone <url> <dest>
+cd <dest>
+```
+
+can be installed to `~/.local/bin`:
+```
+cp aptac ~/.local/bin
+```
+make sure that is in `$PATH` or install globally with `sudo` to `/usr/bin`
 
 ======
 

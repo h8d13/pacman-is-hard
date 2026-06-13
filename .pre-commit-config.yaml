@@ -7,3 +7,11 @@ repos:
         language: system
         files: ^aptac$
         pass_filenames: false
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+    # general hooks:
+    - id: check-added-large-files  # Prevent giant files from being committed
+      args: ['--maxkb=5000']
+    - id: check-symlinks  # Checks for symlinks which do not point to anything
+    - id: check-yaml  # Attempts to load all yaml files to verify syntax

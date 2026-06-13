@@ -31,7 +31,7 @@ all dependencies are: `pacman`, `pacman-contrib`, `reflector`
 
 all your pacman settings are found in `/etc/pacman.conf`
 
-You may also want to see this wiki page and the section about [hooks](https://wiki.archlinux.org/title/Pacman#Hooks)
+you may also want to see this wiki page and the section about [hooks](https://wiki.archlinux.org/title/Pacman#Hooks)
 
 > originally made this for my friend @ModelCitizenPS3, who hates pacman syntax.
 

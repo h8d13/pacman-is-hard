@@ -98,8 +98,8 @@ COMMANDS
   clean [OPTIONS]                 Clean old pkgs from cache (paccache -r)
   orphs [OPTIONS]                 Remove orphaned packages (-Qdtq, then -Rns)
 
-  mirrors [OPTIONS]               Update mirrorlist using reflector, then -Syy
-      --dry-run                   Print mirrors without saving or syncing
+  mirrors [OPTIONS]               Update mirrorlist using reflector
+      --dry-run                   Print mirrors without saving
 
   repos [OPTIONS]                 List repos from pacman.conf (enabled/disabled)
       --config FILE               Read an alternate config (default /etc/pacman.conf)

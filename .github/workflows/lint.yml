@@ -1,5 +1,5 @@
 on: [ push ]
-name: Shell lints
+name: lints
 jobs:
     pylint:
         runs-on: ubuntu-latest

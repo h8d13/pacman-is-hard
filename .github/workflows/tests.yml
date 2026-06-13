@@ -24,14 +24,14 @@ jobs:
       - uses: actions/checkout@v4
 
       # The suite runs the real tools, so install them and leave a synced db.
-      # pacman-contrib provides checkupdates/paccache/pactree; reflector ranks
-      # mirrors. The tiny "tree" pkg the install/orphs tests use is pulled on
-      # demand by those tests (db is synced here).
+      # pacman-contrib provides checkupdates/paccache/pactree; checkupdates
+      # shells out to fakeroot at runtime. reflector ranks mirrors. The tiny
+      # "tree" pkg the install/orphs tests use is pulled on demand (db synced here).
       - name: Install deps and sync db
         shell: bash
         run: |
           pacman -Sy --noconfirm archlinux-keyring
-          pacman -S --noconfirm --needed pacman-contrib reflector \
+          pacman -S --noconfirm --needed pacman-contrib reflector fakeroot \
             bash diffutils grep sed coreutils
 
       # -v dumps each script's full log inline so failures are debuggable in the

@@ -2,7 +2,7 @@
 
 pkgname=apc
 pkgver='0.0.2'
-pkgrel='2'
+pkgrel='3'
 pkgdesc="Lightweight bash wrapper for Pacman."
 arch=('any')
 url="https://github.com/h8d13/apc"

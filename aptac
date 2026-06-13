@@ -30,7 +30,7 @@
 #   info PACKAGE [OPTIONS]          Show detailed package information (-Si)
 #       --local, -l                 Query installed package (-Qi)
 #
-#   sync                            Force-sync package databases (-Syy)
+#   update                          Force-sync package databases (-Syy)
 #   upgrade                         Full system upgrade (-Syu)
 #
 #   check                           Check for available updates (checkupdates)
@@ -48,14 +48,14 @@
 # SPDX-License-Identifier: MIT
 
 set -e
+VER_STRING="0.0.1-1"
 USE_COLOR=1
 ARROW="==>"
 
-# Color codes (only if USE_COLOR=1)
+# Color codes
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
+NC='\033[0m'
 style() {
 	local text="$1"
 	local color="$2"
@@ -72,6 +72,7 @@ op_a() {
 }
 
 # Elevation options (priority order)
+# For GUI prompts you can put run0 first.
 ELEVATE=""
 for cmd in sudo doas run0 su; do
 	if command -v "$cmd" &>/dev/null; then
@@ -251,15 +252,8 @@ main() {
 			USE_COLOR=0
 			shift
 			;;
-		-h | --help)
-			break
-			;;
-		-*)
-			echo "error: Unknown option '$1'" >&2
-			echo "Try 'aptac --help' for usage information" >&2
-			return 1
-			;;
 		*)
+			# command, help/version flag, or unknown: let the command esac decide
 			break
 			;;
 		esac
@@ -274,7 +268,7 @@ main() {
 	mirrors)
 		sort_mirrors "${cmd_args[@]}"
 		;;
-	sync)
+	udapte)
 		op_a 'syncing system'
 		needs_elev pacman -Syy "${cmd_args[@]}"
 		;;
@@ -331,6 +325,11 @@ main() {
 			return 1
 		fi
 		remove_package "${cmd_args[0]}" "${cmd_args[@]:1}"
+		;;
+	-v | --version | version)
+		echo "aptac $VER_STRING" && echo ""
+		pacman -V
+		return 0
 		;;
 	'' | -h | --help | help)
 		# Help text is the header comment block: line 2 to the first blank line

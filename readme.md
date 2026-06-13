@@ -81,7 +81,7 @@ COMMANDS
   info PACKAGE [OPTIONS]          Show detailed package information (-Si)
       --local, -l                 Query installed package (-Qi)
 
-  sync                            Force-sync package databases (-Syy)
+  update                          Force-sync package databases (-Syy)
   upgrade                         Full system upgrade (-Syu)
 
   check                           Check for available updates (checkupdates)

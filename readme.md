@@ -23,8 +23,6 @@ this means every arg passes through to the next tool:
 
 this second example will just get the pacman help.
 
-all dependencies are: `pacman`, `pacman-contrib`, `reflector`
-
 ---
 
 ## some details:

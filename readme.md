@@ -91,7 +91,8 @@ COMMANDS
   upgrade [OPTIONS]               Full system upgrade (-Syu)
 
   check [OPTIONS]                 Check for available updates (checkupdates)
-  clean, sif [OPTIONS]            Clean old packages from cache (paccache -r)
+  clean [OPTIONS]                 Clean old packages from cache (paccache -r)
+  orphs [OPTIONS]                 Remove orphaned packages (-Qdtq, then -Rns)
 
   mirrors [OPTIONS]               Update mirrorlist using reflector, then -Syy
       --dry-run                   Print mirrors without saving or syncing

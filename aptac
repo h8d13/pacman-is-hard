@@ -60,7 +60,8 @@
 #   upgrade [OPTIONS]               Full system upgrade (-Syu)
 #
 #   check [OPTIONS]                 Check for available updates (checkupdates)
-#   clean, sif [OPTIONS]            Clean old packages from cache (paccache -r)
+#   clean [OPTIONS]                 Clean old packages from cache (paccache -r)
+#   orphs [OPTIONS]                 Remove orphaned packages (-Qdtq, then -Rns)
 #
 #   mirrors [OPTIONS]               Update mirrorlist using reflector, then -Syy
 #       --dry-run                   Print mirrors without saving or syncing
@@ -136,6 +137,20 @@ check_updates() {
 clean_packages() {
 	op_a 'cleaning packages'
 	needs_elev paccache -r "$@"
+}
+
+# Remove orphans: packages installed as deps that nothing requires anymore.
+# pacman -Qdtq exits 1 when none are found, so an empty result is not an error.
+remove_orphans() {
+	op_a 'finding orphans'
+	local orphans
+	orphans=$(pacman -Qdtq) || true
+	if [[ -z "$orphans" ]]; then
+		op_a 'no orphans found'
+		return 0
+	fi
+	# Unquoted on purpose: split the newline list into separate package args.
+	needs_elev pacman -Rns "$@" $orphans
 }
 
 show_dependencies() {
@@ -334,8 +349,11 @@ main() {
 	check)
 		check_updates "${cmd_args[@]}"
 		;;
-	clean | sif)
+	clean)
 		clean_packages "${cmd_args[@]}"
+		;;
+	orphs)
+		remove_orphans "${cmd_args[@]}"
 		;;
 	deps)
 		if [[ -z "${cmd_args[0]}" ]]; then

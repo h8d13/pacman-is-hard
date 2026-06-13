@@ -1,14 +1,6 @@
 # apc
 
-> mirror apt style commands for pacman.
-
-notably my favorite detail:
-
-`./apc install fastfetch-`
-
-which uninstalls note the `-`.
-
----
+> APC is a drop-in replacement for `pacman` but all args fall-through to underlying programs.
 
 only rule is to modify syntax, not modify pacman behavior (too much).
 
@@ -24,11 +16,21 @@ this second example will just get the `pacman` help.
 
 ---
 
-## some details:
+notably my favorite detail:
+
+`./apc install fastfetch-`
+
+which uninstalls note the `-`.
+
+---
+
+## some other details:
 
 all your pacman settings are found in `/etc/pacman.conf`
 
 you may also want to see this wiki page and the section about [hooks](https://wiki.archlinux.org/title/Pacman#Hooks)
+
+they can be useful to automate certain things.
 
 > originally made this for my friend @ModelCitizenPS3, who hates pacman syntax.
 > i'm also hoping reading src code could teach some things, since he knows shell very well.

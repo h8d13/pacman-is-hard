@@ -5,7 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 README="readme.md"
-MARKER="## Usage:"
+MARKER="## usage:"
 
 # strip leading/trailing blank lines so the fence hugs the content
 help_out="$(./aptac --no-color --help | sed -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba}')"

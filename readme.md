@@ -1,6 +1,6 @@
 # aptac
 
-mirror apt style commands for pacman
+> mirror apt style commands for pacman
 
 notably my favorite detail:
 
@@ -8,7 +8,7 @@ notably my favorite detail:
 
 which uninstalls note the `-`.
 
-=======
+---
 
 only rule is to modify syntax, not modify pacman behavior (too much).
 
@@ -27,13 +27,13 @@ all dependencies are: `pacman`, `pacman-contrib`, `reflector`
 
 =======
 
-## Some details:
+## some details:
 
 all your pacman settings are found in `/etc/pacman.conf`
 
 > originally made this for my friend @ModelCitizenPS3, who hates pacman syntax.
 
-## Install:
+## install:
 
 ```shell
 git clone <url> <dest>
@@ -48,7 +48,7 @@ make sure that is in `$PATH` or install globally with `sudo` to `/usr/bin`
 
 ======
 
-## Usage:
+## usage:
 
 ```
 NAME

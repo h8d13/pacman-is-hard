@@ -224,7 +224,7 @@ sort_mirrors() {
 	fi
 }
 
-PACMAN_LOCAL="/var/lib/pacman/local"
+PACMAN_LOCAL="${PACMAN_LOCAL:-/var/lib/pacman/local}"
 
 # Package listing. Flags pick a query mode; last one wins. -Ql/-Qo take a
 # trailing argument (a pkg name / a file path) which arrives via extra.

@@ -1,0 +1,37 @@
+name: tests
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [master]
+    paths:
+      - 'aptac'
+      - 't/**'
+      - '.github/workflows/tests.yml'
+  pull_request:
+    paths:
+      - 'aptac'
+      - 't/**'
+      - '.github/workflows/tests.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux/archlinux:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The suite stubs pacman/checkupdates/reflector/paccache/pactree, so no
+      # Arch packages are needed beyond base shell tooling (bash/diff/grep/sed),
+      # which the image already ships. Keyring refresh keeps -S happy if the
+      # image is stale; --needed makes the install a near no-op.
+      - name: Ensure shell tooling
+        shell: bash
+        run: |
+          pacman -Sy --noconfirm archlinux-keyring
+          pacman -S --noconfirm --needed bash diffutils grep sed coreutils
+
+      - name: Run test suite
+        shell: bash
+        run: sh t/run.sh

@@ -1,6 +1,6 @@
 # apc
 
-> mirror apt style commands for pacman
+> mirror apt style commands for pacman.
 
 notably my favorite detail:
 
@@ -20,7 +20,7 @@ this means every arg **passes through** to the next tool:
 ./apc search --help
 ```
 
-this second example will just get the pacman help. which already supports 50 flags.
+this second example will just get the `pacman` help.
 
 ---
 
@@ -31,7 +31,7 @@ all your pacman settings are found in `/etc/pacman.conf`
 you may also want to see this wiki page and the section about [hooks](https://wiki.archlinux.org/title/Pacman#Hooks)
 
 > originally made this for my friend @ModelCitizenPS3, who hates pacman syntax.
-> i'm also hoping reading src code could teach some things, sicne he knows shell very well
+> i'm also hoping reading src code could teach some things, since he knows shell very well.
 
 ## install:
 

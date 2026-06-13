@@ -15,7 +15,7 @@ test_expect_success 'help renders the synopsis and commands' '
 	grep -q "COMMANDS" out
 '
 
-test_expect_success '--version prints version and pacman -V' '
+test_expect_success '--version prints version and runs pacman -V' '
 	reset_calls &&
 	aptac --version >out &&
 	grep -q "aptac 0.0.1-1" out &&
@@ -30,12 +30,12 @@ test_expect_success '-h and -v / version are aliases for help and version' '
 
 test_expect_success 'unknown command falls back to search' '
 	reset_calls &&
-	aptac --no-color frobnicate >out &&
-	grep_call "pacman -Ss frobnicate"
+	aptac --no-color bash >out &&
+	grep_call "pacman -Ss bash"
 '
 
 test_expect_success '--no-color strips ANSI from op lines' '
-	aptac --no-color update >out &&
+	aptac --no-color list --local >out &&
 	! grep -q "$(printf "\033")" out
 '
 

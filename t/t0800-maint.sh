@@ -12,22 +12,32 @@ test_expect_success 'clean runs paccache -r' '
 
 test_expect_success 'clean passes flags through' '
 	reset_calls &&
-	aptac --no-color clean -k2 >out &&
-	grep_call "paccache -r -k2"
+	aptac --no-color clean -k1 >out &&
+	grep_call "paccache -r -k1"
 '
 
+# Clear any pre-existing orphans (removing one can expose its deps as new
+# orphans, hence the loop) so the next test sees a clean slate.
 test_expect_success 'orphs with none reports nothing and skips removal' '
+	while o=$(pacman -Qdtq 2>/dev/null) && test -n "$o"; do
+		pacman -Rns --noconfirm $o || break
+	done &&
 	reset_calls &&
 	aptac --no-color orphs >out &&
 	grep -q "no orphans" out &&
 	! grep_call "pacman -Rns"
 '
 
-test_expect_success 'orphs removes the found orphans (-Qdtq, then -Rns)' '
+# A package installed --asdeps that nothing requires IS an orphan: orphs must
+# find it via -Qdtq and remove it via -Rns.
+test_expect_success 'orphs removes a real orphan (-Qdtq, then -Rns)' '
+	pacman -S --asdeps --noconfirm tree &&
+	test_when_finished "pacman -Rns --noconfirm tree 2>/dev/null || true" &&
 	reset_calls &&
-	( export STUB_ORPHANS="foo bar" && aptac --no-color orphs >out ) &&
+	aptac --no-color orphs --noconfirm >out &&
 	grep_call "pacman -Qdtq" &&
-	grep_call "pacman -Rns foo bar"
+	grep_call "pacman -Rns" &&
+	! pacman -Q tree
 '
 
 test_done

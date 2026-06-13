@@ -157,6 +157,7 @@ remove_orphans() {
 		return 0
 	fi
 	# Unquoted on purpose: split the newline list into separate package args.
+	# shellcheck disable=SC2086
 	needs_elev pacman -Rns "$@" $orphans
 }
 
@@ -250,6 +251,8 @@ list_packages() {
 	op_a "$msg"
 	if [[ -n "$order" ]]; then
 		# Pkg dirs are name-version-rel (always hyphenated); skips ALPM_DB_VERSION.
+		# ls -t/-tr sorts by mtime (install/upgrade order), which find/globs can't.
+		# shellcheck disable=SC2010,SC2012
 		ls "$order" "$PACMAN_LOCAL" | grep -- - | head -n "$count"
 		return
 	fi

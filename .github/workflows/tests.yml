@@ -19,25 +19,24 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: archlinux/archlinux:latest
+      options: --user root
     steps:
       - uses: actions/checkout@v4
 
-      # The suite stubs pacman/checkupdates/reflector/paccache/pactree, so no
-      # Arch packages are needed beyond base shell tooling (bash/diff/grep/sed),
-      # which the image already ships. Keyring refresh keeps -S happy if the
-      # image is stale; --needed makes the install a near no-op.
-      - name: Ensure shell tooling
+      # The suite runs the real tools, so install them and leave a synced db.
+      # pacman-contrib provides checkupdates/paccache/pactree; reflector ranks
+      # mirrors. The tiny "tree" pkg the install/orphs tests use is pulled on
+      # demand by those tests (db is synced here).
+      - name: Install deps and sync db
         shell: bash
         run: |
           pacman -Sy --noconfirm archlinux-keyring
-          pacman -S --noconfirm --needed bash diffutils grep sed coreutils
+          pacman -S --noconfirm --needed pacman-contrib reflector \
+            bash diffutils grep sed coreutils
 
-      # APTAC_REAL_TESTS enables the gated t1100 integration tests, which run
-      # real pacman against /var/lib/pacman/local (install a pkg, confirm it
-      # tops `list --last 1`). Root + this env are required, so they only ever
-      # fire here, never on a dev host running `sh t/run.sh`.
+      # -v dumps each script's full log inline so failures are debuggable in the
+      # Actions console. The suite is CI-only (it mutates the system); the
+      # container is disposable and root, which is exactly what it needs.
       - name: Run test suite
         shell: bash
-        env:
-          APTAC_REAL_TESTS: "1"
-        run: sh t/run.sh
+        run: sh t/run.sh -v

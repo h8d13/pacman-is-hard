@@ -1,31 +1,33 @@
 aptac test suite
 ================
 
-git-style harness. Each t[0-9]*.sh sources test-lib.sh, which drops fake
-pacman/sudo/checkupdates/paccache/pactree/reflector onto PATH. The fakes only
-log their argv to a per-script call log; aptac is a wrapper, so the tests assert
-"aptac invoked the right underlying command" without touching the real system.
+CI-ONLY. These tests run the REAL pacman / checkupdates / paccache / pactree /
+reflector: they install and remove packages, refresh the files database, and
+force-sync mirrors. Run them in the disposable CI container (Arch, root), never
+on a real host -- they will mutate it. The workflow installs the deps
+(pacman-contrib, reflector) and a synced db before running.
 
-Run (run.sh cd's into t/ for you; scripts source ./test-lib.sh so a single
-script or prove must be invoked from inside t/):
-    sh t/run.sh                    # all scripts, PASS/FAIL summary
-    sh t/run.sh -v                 # also show each body's output
+git-style harness. Each t[0-9]*.sh sources test-lib.sh, which fronts each real
+tool with a thin wrapper: it appends the tool's argv to a per-script call log,
+then execs the real binary. So every command genuinely runs, and the tests can
+still assert WHICH underlying command aptac issued (the 1:1 header -> flag map)
+via grep_call, on top of checking the real effect (e.g. install then pacman -Q).
+
+Run (inside CI, or a throwaway Arch root container):
+    sh t/run.sh                    # all scripts, PASS/FAIL with counts
+    sh t/run.sh -v                 # also dump each script's full log inline
     (cd t && prove ./t[0-9]*.sh)   # TAP via prove, if installed
     (cd t && sh t0200-list.sh)     # a single script
 
 Writing a test:
     test_expect_success 'desc' '
-        reset_calls &&
-        aptac --no-color <cmd> &&
-        grep_call "pacman -Whatever"
+        reset_calls &&                       # clear the log right before...
+        aptac --no-color install tree --noconfirm &&
+        grep_call "pacman -S" &&             # ...asserting the issued flag
+        pacman -Q tree                       # ...and the real effect
     '
 
 Helpers: aptac, reset_calls, grep_call, test_must_fail, test_cmp,
-test_when_finished. Stub knobs (env): STUB_ORPHANS, STUB_UPDATES,
-STUB_CHECK_RC, STUB_PACMAN_RC. PACMAN_LOCAL points --first/--last at a fixture.
-
-Real integration (t1100): a script setting want_real=1 before sourcing runs
-against the actual system tools instead of stubs. Those tests carry the REAL
-prereq and only run with APTAC_REAL_TESTS=1 AND root (they really install/remove
-a package) -- CI sets this. Everywhere else they SKIP, so they never touch a dev
-host. To run them deliberately: APTAC_REAL_TESTS=1 sudo sh t/run.sh.
+test_when_finished. The call logger records pacman calls the test itself makes
+too, so reset_calls immediately before the aptac invocation under test. Small
+real packages used: tree (install/uninstall/orphs), bash (queries).

@@ -1,0 +1,16 @@
+on: [ push ]
+name: Shell lints
+jobs:
+    pylint:
+        runs-on: ubuntu-latest
+        container:
+            image: archlinux/archlinux:latest
+        steps:
+            - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+            - name: Prepare arch
+              run: |
+                pacman-key --init
+                pacman --noconfirm -Sy archlinux-keyring
+                pacman --noconfirm -Syyu
+                pacman --noconfirm -Sy shfmt shellcheck
+            - run: bash lint.sh

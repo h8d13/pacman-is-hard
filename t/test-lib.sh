@@ -3,10 +3,11 @@
 # subset). A test script sets test_description, sources this file, runs
 # test_expect_success blocks, and ends with test_done. Run from within t/.
 #
-# It puts fake pacman/sudo/checkupdates/... on PATH that only LOG their argv
-# (to $APTAC_CALLS). aptac is a thin wrapper, so the unit under test is "did
-# aptac invoke the right underlying command", which the call log captures
-# without ever touching the real system.
+# CI-ONLY. These tests run the REAL pacman/checkupdates/paccache/pactree/
+# reflector and really install/remove packages, refresh the files db, and
+# force-sync. Run them in the disposable CI container, never on a host. Each
+# real tool is fronted by a thin wrapper that logs its argv to $APTAC_CALLS and
+# then execs the real binary -- a tap for flag assertions, not a fake. See README.
 
 # Resolve paths (TEST_DIRECTORY = the t/ dir, APTAC = binary under test).
 TEST_DIRECTORY=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -115,8 +116,8 @@ test_done() {
 	exit 0
 }
 
-# --- sandbox: trash dir + fake tools on PATH -------------------------------
-# Space in the name is deliberate: it catches quoting bugs, same as git's suite.
+# --- sandbox: trash dir + real-tool loggers on PATH ------------------------
+# Space in the trash name is deliberate: it catches quoting bugs, like git's.
 TRASH_DIRECTORY="$TEST_DIRECTORY/trash directory.$(basename "$0" .sh)"
 rm -rf "$TRASH_DIRECTORY"
 mkdir -p "$TRASH_DIRECTORY/bin"
@@ -124,69 +125,24 @@ APTAC_CALLS="$TRASH_DIRECTORY/calls"
 : >"$APTAC_CALLS"
 export APTAC_CALLS
 
-# A script that sets want_real=1 before sourcing runs against the REAL system
-# tools (no stubs). Those tests carry the REAL prereq, which only fires with an
-# explicit CI opt-in (APTAC_REAL_TESTS) AND root, since they mutate package
-# state. So a plain `sh run.sh` on a dev host SKIPs them.
-if test -n "$want_real"; then
-	if test -n "$APTAC_REAL_TESTS" && command -v pacman >/dev/null 2>&1 && test "$(id -u)" = 0; then
-		test_set_prereq REAL
-	fi
-	aptac() { "$APTAC" "$@"; }
-	reset_calls() { : >"$APTAC_CALLS"; }
-	grep_call() { grep -F -- "$1" "$APTAC_CALLS"; }
-	cd "$TRASH_DIRECTORY" || exit 1
-	return 0 2>/dev/null || true
-fi
-
-# Fake pacman: log argv; only the cases aptac READS back produce real output.
-#   STUB_ORPHANS    space-list returned for -Qdtq (empty => exit 1, like real)
-#   STUB_PACMAN_RC  exit code for everything else (default 0)
-cat >"$TRASH_DIRECTORY/bin/pacman" <<'STUB'
-#!/bin/sh
-echo "pacman $*" >>"$APTAC_CALLS"
-case " $* " in
-*" -Qdtq "*)
-	test -n "$STUB_ORPHANS" || exit 1
-	printf '%s\n' $STUB_ORPHANS
-	;;
-*" -V "*) echo "Pacman v0.0-fake" ;;
-esac
-exit "${STUB_PACMAN_RC:-0}"
-STUB
-
-# Fake checkupdates: rc 0 => updates (STUB_UPDATES printed), 2 => up to date,
-# 1 => real error. Mirrors the exit-code contract aptac relies on.
-cat >"$TRASH_DIRECTORY/bin/checkupdates" <<'STUB'
-#!/bin/sh
-echo "checkupdates $*" >>"$APTAC_CALLS"
-test -n "$STUB_UPDATES" && printf '%s\n' "$STUB_UPDATES"
-exit "${STUB_CHECK_RC:-0}"
-STUB
-
-# Log-only stubs.
-for t in paccache pactree reflector; do
-	cat >"$TRASH_DIRECTORY/bin/$t" <<STUB
-#!/bin/sh
-echo "$t \$*" >>"\$APTAC_CALLS"
-exit 0
-STUB
+# Front each real tool with a logger that records argv then execs the real
+# binary by absolute path (resolved now, before the wrapper dir shadows PATH).
+for tool in pacman checkupdates paccache pactree reflector; do
+	real=$(command -v "$tool" 2>/dev/null) || real=
+	test -n "$real" || continue
+	{
+		echo '#!/bin/sh'
+		echo "echo \"$tool \$*\" >>\"\$APTAC_CALLS\""
+		echo "exec $real \"\$@\""
+	} >"$TRASH_DIRECTORY/bin/$tool"
 done
-
-# Elevation tools: transparent, so the wrapped command still hits its stub and
-# the logged line is identical whether or not the suite runs as root.
-for t in sudo doas run0; do
-	cat >"$TRASH_DIRECTORY/bin/$t" <<'STUB'
-#!/bin/sh
-exec "$@"
-STUB
-done
-
-chmod +x "$TRASH_DIRECTORY/bin/"*
+chmod +x "$TRASH_DIRECTORY/bin/"* 2>/dev/null || true
 PATH="$TRASH_DIRECTORY/bin:$PATH"
 export PATH
 
-# Test-facing helpers.
+# Test-facing helpers. reset_calls before an aptac call, then grep_call asserts
+# which underlying command it issued. (The logger also records pacman calls the
+# test itself makes, so reset_calls right before the aptac under test.)
 aptac() { "$APTAC" "$@"; }
 reset_calls() { : >"$APTAC_CALLS"; }
 grep_call() { grep -F -- "$1" "$APTAC_CALLS"; }

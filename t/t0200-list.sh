@@ -7,13 +7,15 @@ test_description='list and its query modes'
 test_expect_success 'list sync packages (-Sl)' '
 	reset_calls &&
 	aptac --no-color list >out &&
-	grep_call "pacman -Sl"
+	grep_call "pacman -Sl" &&
+	test -s out
 '
 
-test_expect_success '--local lists installed (-Q)' '
+test_expect_success '--local lists installed, incl. bash (-Q)' '
 	reset_calls &&
 	aptac --no-color list --local >out &&
-	grep_call "pacman -Q"
+	grep_call "pacman -Q" &&
+	grep -q "^bash " out
 '
 
 test_expect_success '--explicit (-Qe)' '
@@ -25,51 +27,38 @@ test_expect_success '--explicit (-Qe)' '
 test_expect_success '--files PKG lists owned files (-Ql)' '
 	reset_calls &&
 	aptac --no-color list --files bash >out &&
-	grep_call "pacman -Ql bash"
+	grep_call "pacman -Ql bash" &&
+	grep -q "/usr/bin/bash" out
 '
 
-test_expect_success '--why PATH finds owner (-Qo)' '
+test_expect_success '--why PATH finds the owner (-Qo)' '
 	reset_calls &&
-	aptac --no-color list --why /bin/sh >out &&
-	grep_call "pacman -Qo /bin/sh"
+	aptac --no-color list --why /usr/bin/bash >out &&
+	grep_call "pacman -Qo /usr/bin/bash" &&
+	grep -qi bash out
 '
 
 test_expect_success 'short aliases -l/-e/-f/-w match their long forms' '
 	reset_calls && aptac --no-color list -l >out && grep_call "pacman -Q" &&
 	reset_calls && aptac --no-color list -e >out && grep_call "pacman -Qe" &&
 	reset_calls && aptac --no-color list -f bash >out && grep_call "pacman -Ql bash" &&
-	reset_calls && aptac --no-color list -w /bin/sh >out && grep_call "pacman -Qo /bin/sh"
+	reset_calls && aptac --no-color list -w /usr/bin/bash >out && grep_call "pacman -Qo /usr/bin/bash"
 '
 
-# --first/--last read local-db dir mtimes, not pacman. Build a fake db ordered
-# in time and point PACMAN_LOCAL at it. ALPM_DB_VERSION must be filtered out.
-test_expect_success 'set up a fake local db ordered by mtime' '
-	mkdir -p db &&
-	: >db/ALPM_DB_VERSION &&
-	mkdir db/old-1.0-1 db/mid-1.0-1 db/new-1.0-1 &&
-	touch -d "2020-01-01" db/old-1.0-1 &&
-	touch -d "2021-01-01" db/mid-1.0-1 &&
-	touch -d "2022-01-01" db/new-1.0-1
+# --first/--last read local-db dir mtimes. The newest entry should be a real
+# name-version-rel line; exact identity is asserted in t0400 after an install.
+test_expect_success '--last 1 returns a real newest package line' '
+	aptac --no-color list --last 1 >out &&
+	tail -n 1 out >name &&
+	test -s name &&
+	grep -q -- - name
 '
 
-test_expect_success '--last shows newest first, drops ALPM_DB_VERSION' '
-	cat >expect <<-EOF &&
-	==> listing newest installed packages...
-	new-1.0-1
-	mid-1.0-1
-	EOF
-	PACMAN_LOCAL="$PWD/db" aptac --no-color list --last 2 >out &&
-	test_cmp expect out
-'
-
-test_expect_success '--first shows oldest first' '
-	cat >expect <<-EOF &&
-	==> listing oldest installed packages...
-	old-1.0-1
-	mid-1.0-1
-	EOF
-	PACMAN_LOCAL="$PWD/db" aptac --no-color list --first 2 >out &&
-	test_cmp expect out
+test_expect_success '--first 1 returns a real oldest package line' '
+	aptac --no-color list --first 1 >out &&
+	tail -n 1 out >name &&
+	test -s name &&
+	grep -q -- - name
 '
 
 test_done

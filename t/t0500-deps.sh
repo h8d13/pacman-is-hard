@@ -4,10 +4,11 @@ test_description='deps'
 
 . ./test-lib.sh
 
-test_expect_success 'deps runs pactree' '
+test_expect_success 'deps runs pactree on a real package' '
 	reset_calls &&
 	aptac --no-color deps bash >out &&
-	grep_call "pactree bash"
+	grep_call "pactree bash" &&
+	grep -q bash out
 '
 
 test_expect_success 'deps passes flags through' '

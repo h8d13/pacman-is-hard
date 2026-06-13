@@ -3,17 +3,7 @@ SCRIPT="./aptac"
 TESTS_PASSED=0
 TESTS_FAILED=0
 
-echo "Running tests on $SCRIPT..."
-echo
-
-echo "▶ Running shellcheck..."
-if shellcheck "$SCRIPT"; then
-	echo "  ✓ Shellcheck passed"
-	((TESTS_PASSED++))
-else
-	echo "  ✗ Shellcheck failed"
-	((TESTS_FAILED++))
-fi
+echo "Running lints on $SCRIPT..."
 echo
 
 echo "▶ Running bash -n..."
@@ -22,6 +12,16 @@ if bash -n "$SCRIPT"; then
 	((TESTS_PASSED++))
 else
 	echo "  ✗ Syntax check failed"
+	((TESTS_FAILED++))
+fi
+echo
+
+echo "▶ Running shellcheck..."
+if shellcheck "$SCRIPT"; then
+	echo "  ✓ Shellcheck passed"
+	((TESTS_PASSED++))
+else
+	echo "  ✗ Shellcheck failed"
 	((TESTS_FAILED++))
 fi
 echo

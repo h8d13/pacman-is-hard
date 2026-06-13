@@ -1,2 +1,8 @@
-trash directory.*
-*.log
+# dirs
+pkg/
+src/
+trash/
+# files
+**.log
+**tar.gz
+**tar.zst

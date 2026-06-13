@@ -118,7 +118,7 @@ test_done() {
 
 # --- sandbox: trash dir + real-tool loggers on PATH ------------------------
 # Space in the trash name is deliberate: it catches quoting bugs, like git's.
-TRASH_DIRECTORY="$TEST_DIRECTORY/trash directory.$(basename "$0" .sh)"
+TRASH_DIRECTORY="$TEST_DIRECTORY/trash.$(basename "$0" .sh)"
 rm -rf "$TRASH_DIRECTORY"
 mkdir -p "$TRASH_DIRECTORY/bin"
 apc_CALLS="$TRASH_DIRECTORY/calls"

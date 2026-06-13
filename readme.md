@@ -12,8 +12,7 @@ which uninstalls note the `-`.
 
 only rule is to modify syntax, not modify pacman behavior (too much).
 
-i'm also hoping reading src code could teach some things
-this means every arg passes through to the next tool:
+this means every arg **passes through** to the next tool:
 
 ```
 ./aptac --help
@@ -21,7 +20,7 @@ this means every arg passes through to the next tool:
 ./aptac search --help
 ```
 
-this second example will just get the pacman help.
+this second example will just get the pacman help. which already supports 50 flags.
 
 ---
 
@@ -32,6 +31,7 @@ all your pacman settings are found in `/etc/pacman.conf`
 you may also want to see this wiki page and the section about [hooks](https://wiki.archlinux.org/title/Pacman#Hooks)
 
 > originally made this for my friend @ModelCitizenPS3, who hates pacman syntax.
+> i'm also hoping reading src code could teach some things
 
 ## install:
 

@@ -1,6 +1,6 @@
 # apc
 
-> `apc` is a wrapper replacement for `pacman`.
+> `apc` is a **thin** wrapper replacement for `pacman`.
 
 only rule is to modify syntax, not modify pacman behavior (too much).
 

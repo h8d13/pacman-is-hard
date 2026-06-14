@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env -S bash
 # Made for my friend ModelCitizenPS3 who hates pacman
 #
 #                     -@
@@ -381,7 +381,7 @@ main() {
 		remove_orphans "${cmd_args[@]}"
 		;;
 	deps)
-		if [[ -z "${cmd_args[0]}" ]]; then
+		if [[ -z "${cmd_args[0]:-}" ]]; then
 			echo "error: deps requires a package name" >&2
 			return 1
 		fi
@@ -394,21 +394,21 @@ main() {
 		list_packages "${cmd_args[@]}"
 		;;
 	search)
-		if [[ -z "${cmd_args[0]}" ]]; then
+		if [[ -z "${cmd_args[0]:-}" ]]; then
 			echo "error: search requires a package name" >&2
 			return 1
 		fi
 		search_packages "${cmd_args[0]}" "${cmd_args[@]:1}"
 		;;
 	info)
-		if [[ -z "${cmd_args[0]}" ]]; then
+		if [[ -z "${cmd_args[0]:-}" ]]; then
 			echo "error: info requires a package name" >&2
 			return 1
 		fi
 		inspect_package "${cmd_args[0]}" "${cmd_args[@]:1}"
 		;;
 	install)
-		if [[ -z "${cmd_args[0]}" ]]; then
+		if [[ -z "${cmd_args[0]:-}" ]]; then
 			echo "error: install requires a package name" >&2
 			return 1
 		fi
@@ -421,7 +421,7 @@ main() {
 		fi
 		;;
 	uninstall)
-		if [[ -z "${cmd_args[0]}" ]]; then
+		if [[ -z "${cmd_args[0]:-}" ]]; then
 			echo "error: uninstall requires a package name" >&2
 			return 1
 		fi

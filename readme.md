@@ -42,11 +42,9 @@ git clone <url> <dest>
 cd <dest>
 ```
 
-can be installed to `~/.local/bin`:
 ```
-cp apc ~/.local/bin
+sudo cp apc /usr/bin/
 ```
-make sure that is in `$PATH` or install globally with `sudo` to `/usr/bin`
 
 ---
 

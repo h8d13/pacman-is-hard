@@ -45,7 +45,6 @@
 #   install PACKAGE [OPTIONS]       Install a pkg from sync repos
 #                                   Use "pkg-" to uninstall
 #   uninstall PACKAGE [OPTIONS]     Uninstall a pkg
-#       --no-deps                   Don't remove orphaned dependencies
 #
 #   list [OPTIONS]                  List packages (-Sl)
 #       --local, -l                 List installed pkgs (-Q)
@@ -313,29 +312,28 @@ inspect_package() {
 	pacman "${flag}" "${extra[@]}" "${target}"
 }
 
-# Package installation
-install_package() {
-	local package="${1}"
-	shift
-	op_a "installing ${package}"
-	needs_elev pacman -S "$@" "${package}"
+# Drop flags (-*) so the op_a banner names packages only; pacman still
+# gets the full argv.
+pkgs_only() {
+	local arg pkgs=()
+	for arg in "$@"; do
+		[[ "${arg}" != -* ]] && pkgs+=("${arg}")
+	done
+	echo "${pkgs[*]}"
 }
 
-# Package removal
+# Package installation. Takes a package list plus any passthrough flags;
+# everything is forwarded to pacman -S verbatim.
+install_package() {
+	op_a "installing $(pkgs_only "$@")"
+	needs_elev pacman -S "$@"
+}
+
+# Package removal. Same contract as install_package: list + passthrough,
+# forwarded to pacman -Rns.
 remove_package() {
-	local package="${1}" dependencies=1 extra=()
-	shift
-	while [[ $# -gt 0 ]]; do
-		case "${1}" in
-		--no-deps) dependencies=0 ;;
-		*) extra+=("${1}") ;; # pass pacman's own flags through
-		esac
-		shift
-	done
-	op_a "uninstalling ${package}"
-	local flag="-Rns"
-	[[ ${dependencies} -eq 0 ]] && flag="-R"
-	needs_elev pacman "${flag}" "${extra[@]}" "${package}"
+	op_a "uninstalling $(pkgs_only "$@")"
+	needs_elev pacman -Rns "$@"
 }
 
 # Main function
@@ -412,20 +410,27 @@ main() {
 			echo "error: install requires a package name" >&2
 			return 1
 		fi
-		local pkg="${cmd_args[0]}"
-		# pkg- syntax means uninstall (like apt)
-		if [[ "${pkg}" == *- ]]; then
-			remove_package "${pkg%-}" "${cmd_args[@]:1}"
-		else
-			install_package "${pkg}" "${cmd_args[@]:1}"
-		fi
+		# apt-style mixed batch: bare pkg installs, "pkg-" uninstalls.
+		# Sort tokens into two lists, then remove-then-install (so a
+		# replaced pkg goes before whatever may depend on the new one).
+		# Flags (-*) apply to both pacman calls.
+		local to_install=() to_remove=() flags=() arg
+		for arg in "${cmd_args[@]}"; do
+			case "${arg}" in
+			-*) flags+=("${arg}") ;;
+			*-) to_remove+=("${arg%-}") ;;
+			*) to_install+=("${arg}") ;;
+			esac
+		done
+		[[ ${#to_remove[@]} -gt 0 ]] && remove_package "${flags[@]}" "${to_remove[@]}"
+		[[ ${#to_install[@]} -gt 0 ]] && install_package "${flags[@]}" "${to_install[@]}"
 		;;
 	uninstall)
 		if [[ -z "${cmd_args[0]:-}" ]]; then
 			echo "error: uninstall requires a package name" >&2
 			return 1
 		fi
-		remove_package "${cmd_args[0]}" "${cmd_args[@]:1}"
+		remove_package "${cmd_args[@]}"
 		;;
 	-v | --version | version)
 		echo "Apc ${_ver_string} - 0BSD" && echo ""

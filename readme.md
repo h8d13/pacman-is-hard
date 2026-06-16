@@ -77,7 +77,6 @@ COMMANDS
   install PACKAGE [OPTIONS]       Install a pkg from sync repos
                                   Use "pkg-" to uninstall
   uninstall PACKAGE [OPTIONS]     Uninstall a pkg
-      --no-deps                   Don't remove orphaned dependencies
 
   list [OPTIONS]                  List packages (-Sl)
       --local, -l                 List installed pkgs (-Q)

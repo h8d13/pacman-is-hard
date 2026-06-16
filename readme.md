@@ -45,6 +45,7 @@ cd <dest>
 ```
 sudo cp apc /usr/bin/
 ```
+install globally with `sudo` to `/usr/bin`
 
 ---
 
